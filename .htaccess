@@ -1,0 +1,36 @@
+# Anant Ceramic Sales CRM — Apache (BigRock cPanel / Railway)
+Options -Indexes
+DirectoryIndex index.php
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # Force HTTPS when a certificate is installed (uncomment on BigRock after AutoSSL is active)
+  # RewriteCond %{HTTPS} off
+  # RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+  # Block direct access to code, config and SQL files
+  RewriteRule ^(core|views|pages)(/|$) - [F,L]
+  RewriteRule ^config(\.local)?(\.sample)?\.php$ - [F,L]
+  RewriteRule \.(sql|md|lock|json|sh)$ - [F,L]
+  RewriteRule ^(Dockerfile|railway\.toml|docker)(/|$) - [F,L]
+
+  # Serve real files directly, send everything else to index.php
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+  RewriteRule ^ index.php [L,QSA]
+</IfModule>
+
+<IfModule mod_php.c>
+  php_value upload_max_filesize 16M
+  php_value post_max_size 64M
+</IfModule>
+
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType image/jpeg "access plus 30 days"
+  ExpiresByType image/png "access plus 30 days"
+  ExpiresByType text/css "access plus 7 days"
+  ExpiresByType application/javascript "access plus 7 days"
+</IfModule>
